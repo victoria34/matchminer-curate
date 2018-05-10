@@ -70,7 +70,7 @@
                 <label for="archive" style="color:red;margin-left:10px">Yes </label>
                 <input id="archive" type="radio" value="Yes" name="archive" [(ngModel)]="trialChosen.archived" (change)="updateStatus('archive')">
                 <label for="retrieve" style="color:green;margin-left:10px">No </label>
-                <input id="retrieve" type="radio" value="No" name="archive" [(ngModel)]="trialChosen.archived" (change)="updateStatus('archive')">
+                <input #radioArchiveModel="ngModel" id="retrieve" type="radio" value="No" name="archive" [(ngModel)]="trialChosen.archived" (change)="updateStatus('archive')">
             </span>
             <br/><br/>
             <label for="nctId">NCT ID: </label>
