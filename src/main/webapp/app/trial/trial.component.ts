@@ -1,6 +1,7 @@
 import { Component, ViewChild, AfterViewInit, OnInit } from '@angular/core';
 import { Http, Response } from '@angular/http';
-import { AngularFireDatabase, AngularFireObject } from 'angularfire2/database';
+import { AngularFireDatabase } from 'angularfire2/database';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/observable/combineLatest';
 import { TrialService } from '../service/trial.service';
@@ -12,6 +13,7 @@ import "../../../../../node_modules/datatables.net/js/jquery.dataTables.js";
 import { Subject } from 'rxjs/Subject';
 import { DataTableDirective } from 'angular-datatables';
 import { NgModel } from "@angular/forms";
+import { ConnectionService } from "../service/connection.service";
 @Component({
   selector: 'jhi-trial',
   templateUrl: './trial.component.html',
@@ -32,8 +34,15 @@ export class TrialComponent implements OnInit, AfterViewInit{
   statusOptions = this.trialService.getStatusOptions();
   originalTrialStatus = '';
   @ViewChild('selectModel') private selectModel: NgModel;
-
-  constructor(public http: Http, private trialService: TrialService, public db: AngularFireDatabase) {
+  production = this.trialService.getProduction();
+  isPermitted = this.trialService.getIsPermitted();
+  showImportTrial = this.trialService.getShowImportTrial();
+  showTrialTable = this.trialService.getShowTrialTable();
+  mongoMessage = {
+      content: '',
+      color: ''
+  };
+  constructor(public http: Http, private trialService: TrialService, public db: AngularFireDatabase, private connectionService: ConnectionService) {
     this.trialService.nctIdChosenObs.subscribe(message => this.nctIdChosen = message);
     this.trialService.trialChosenObs.subscribe(message => this.trialChosen = message);
     this.trialService.trialListObs.subscribe(message => {
@@ -59,6 +68,7 @@ export class TrialComponent implements OnInit, AfterViewInit{
   }
   importTrials() {
     this.messages = [];
+    this.mongoMessage.content = "";
     const newTrials: Array<string>  = this.trialsToImport.split(',');
     let setChosenTrial = false;
     for (const newTrial of newTrials) {
@@ -125,6 +135,7 @@ export class TrialComponent implements OnInit, AfterViewInit{
     this.trialsToImport = '';
   }
   updateStatus(type: string) {
+      this.mongoMessage.content = "";
       if (type === 'curation') {
         this.db.object('Trials/' + this.nctIdChosen).update({
             curation_status: this.trialChosen['curation_status']
@@ -151,6 +162,7 @@ export class TrialComponent implements OnInit, AfterViewInit{
       }
   }
   curateTrial(nctId: string) {
+      this.mongoMessage.content = "";
       this.trialService.setTrialChosen(nctId);
       this.originalTrialStatus = this.trialChosen['status'];
       document.querySelector('#trialDetail').scrollIntoView();
@@ -193,5 +205,23 @@ export class TrialComponent implements OnInit, AfterViewInit{
             this.trialChosen['status'] = this.originalTrialStatus;
         });
     }
+  }
+
+  loadMongo() {
+    this.mongoMessage.content = "Loading the trial ......";
+    this.mongoMessage.color = '#ffc107';
+    let trial = {
+        'trial': this.trialChosen
+    }
+    this.connectionService.loadMongo(trial).subscribe((res) => {
+        if (res.status === 200) {
+            this.mongoMessage.content = 'Send trial ' + this.nctIdChosen + ' successfully!';
+            this.mongoMessage.color = 'green';
+        }
+    }, (error) => {
+        this.mongoMessage.content = 'Request for sending trial ' + this.nctIdChosen + ' failed!';
+        this.mongoMessage.color = 'red';
+        return Observable.throw(error);
+    });
   }
 }
