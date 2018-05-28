@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { TrialService } from '../service/trial.service';
-import { AngularFireDatabase, AngularFireObject, AngularFireList } from 'angularfire2/database';
 import * as _ from 'underscore';
 import { Genomic } from '../genomic/genomic.model';
 import { Clinical } from '../clinical/clinical.model';
