@@ -8,9 +8,10 @@ import { MovingPath } from '../panel/movingPath.model';
 import { Arm } from '../arm/arm.model';
 import { Http, Response } from '@angular/http';
 import * as _ from 'underscore';
-import { SERVER_API_URL } from '../app.constants';
 import { environment } from '../environments/environment';
 import { EmailService } from "./email.service";
+import { ConnectionService } from "./connection.service";
+
 @Injectable()
 export class TrialService {
     production = environment.production ? environment.production : false;
@@ -81,15 +82,14 @@ export class TrialService {
     nctIdChosen = '';
     errorList: Array<object> = [];
 
-    constructor(public http: Http, public db: AngularFireDatabase, private emailService: EmailService) {
+    constructor(public connectionService: ConnectionService, public db: AngularFireDatabase, private emailService: EmailService) {
         this.nctIdChosenObs.subscribe(message => this.nctIdChosen = message);
         this.trialsRef = db.object('Trials');
 
         // prepare main types list
-        this.http.get(this.getAPIUrl('MainType'))
-        .subscribe((res: Response) => {
+        this.connectionService.getMainType().subscribe((res: Array<string>) => {
             let mainTypeQueries = [];
-            for (const item of res.json()) {
+            for (const item of res) {
                 mainTypeQueries.push({
                     "exactMatch": true,
                     "query": item,
@@ -101,9 +101,8 @@ export class TrialService {
             let queries =  {
                 "queries": mainTypeQueries
               };
-            this.http.post(this.getAPIUrl('SubType'), queries)
-            .subscribe((res: Response) => {
-                let tempSubTypes = res.json();
+            this.connectionService.getSubType(queries).subscribe((res: Array<any>) => {
+                let tempSubTypes = res;
                 let currentSubtype = '';
                 let currentMaintype = '';
                 for (const items of tempSubTypes) {
@@ -126,9 +125,8 @@ export class TrialService {
             });
         });
         // prepare oncokb variant list
-        this.http.get(this.getAPIUrl('OncoKBVariant'))
-        .subscribe((res: Response) => {
-           const allAnnotatedVariants = res.json();
+        this.connectionService.getOncoKBVariant().subscribe((res) => {
+           const allAnnotatedVariants = res;
            for(const item of  allAnnotatedVariants) {
                 if (item['gene']['hugoSymbol']) {
                     if (this.annotated_variants[item['gene']['hugoSymbol']]) {
@@ -311,39 +309,6 @@ export class TrialService {
                 content: content,
                 error: error
             });
-        }
-    }
-    getAPIUrl(type: string) {
-        if (this.production === true) {
-            switch(type) {
-                case 'MainType':
-                    return SERVER_API_URL + 'proxy/http/oncotree.mskcc.org/api/mainTypes';
-                case 'SubType':
-                    return SERVER_API_URL + 'proxy/http/oncotree.mskcc.org/api/tumorTypes/search';
-                case 'OncoKBVariant':
-                    return SERVER_API_URL + 'proxy/http/oncokb.org/api/v1/variants';
-                case 'GeneValidation':
-                    return SERVER_API_URL + 'proxy/http/mygene.info/v3/query?species=human&q=symbol:';
-                case 'ClinicalTrials':
-                    return SERVER_API_URL + 'proxy/https/clinicaltrialsapi.cancer.gov/v1/clinical-trial/';
-                case 'ExampleValidation':
-                    return SERVER_API_URL + 'proxy/http/oncokb.org/api/v1/utils/match/variant?';
-            }
-        } else {
-            switch(type) {
-                case 'MainType':
-                    return 'http://oncotree.mskcc.org/api/mainTypes';
-                case 'SubType':
-                    return 'http://oncotree.mskcc.org/api/tumorTypes/search';
-                case 'OncoKBVariant':
-                    return 'http://oncokb.org/api/v1/variants';
-                case 'GeneValidation':
-                    return 'http://mygene.info/v3/query?species=human&q=symbol:';
-                case 'ClinicalTrials':
-                    return 'https://clinicaltrialsapi.cancer.gov/v1/clinical-trial/';
-                case 'ExampleValidation':
-                    return 'http://oncokb.org/api/v1/utils/match/variant?';
-            }
         }
     }
 }

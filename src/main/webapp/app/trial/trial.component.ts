@@ -14,7 +14,6 @@ import { Subject } from 'rxjs/Subject';
 import { DataTableDirective } from 'angular-datatables';
 import { NgModel } from "@angular/forms";
 import { ConnectionService } from "../service/connection.service";
-import { NgModel } from "@angular/forms";
 
 @Component({
   selector: 'jhi-trial',
@@ -89,12 +88,11 @@ export class TrialComponent implements OnInit, AfterViewInit{
             this.messages.push(tempTrial + ' is invalid trial format');
             continue;
         }
-        this.http.get(this.trialService.getAPIUrl('ClinicalTrials') + tempTrial)
-        .subscribe((res: Response) => {
-           const trialInfo = res.json();
-           let armsInfo:any = [];
-           _.each(trialInfo.arms, function(arm) {
-               if (arm.arm_type !== null && arm.arm_description !== null) {
+        this.connectionService.importTrials(tempTrial).subscribe((res) => {
+            const trialInfo = res;
+            let armsInfo:any = [];
+            _.each(trialInfo['arms'], function(arm) {
+                if (arm.arm_type !== null && arm.arm_description !== null) {
                     armsInfo.push({
                         arm_name: arm.arm_name,
                         arm_status: '',
@@ -103,39 +101,37 @@ export class TrialComponent implements OnInit, AfterViewInit{
                         arm_eligibility: '',
                         match: []
                     });
-               }
-           });
-           const trial: Trial = {
-                   curation_status: 'In progress',
-                   archived: 'No',
-                   nct_id: trialInfo.nct_id,
-                   long_title: trialInfo.official_title,
-                   short_title: trialInfo.brief_title,
-                   phase: trialInfo.phase.phase,
-                   status: trialInfo.current_trial_status,
-                   treatment_list: {
-                       step: [{
+                }
+            });
+            const trial: Trial = {
+                curation_status: 'In progress',
+                archived: 'No',
+                nct_id: trialInfo['nct_id'],
+                long_title: trialInfo['official_title'],
+                short_title: trialInfo['brief_title'],
+                phase: trialInfo['phase']['phase'],
+                status: trialInfo['current_trial_status'],
+                treatment_list: {
+                    step: [{
                         arm:  armsInfo,
                         match: []
                     }]
-                   }
-               };
-           this.db.object('Trials/' + trialInfo.nct_id).set(trial).then(result => {
-            this.messages.push('Successfully imported ' + trialInfo.nct_id);
-            if (setChosenTrial === false) {
-                 this.nctIdChosen = trialInfo.nct_id;
-                 this.trialService.setTrialChosen(this.nctIdChosen);
-                 this.originalTrialStatus = this.trialChosen['status'];
-                 setChosenTrial = true;
-            }
-           }).catch(error => {
-            this.messages.push('Fail to save to database ' + tempTrial);
-           });
-        },
-        error => {
+                }
+            };
+            this.db.object('Trials/' + trialInfo['nct_id']).set(trial).then(result => {
+                this.messages.push('Successfully imported ' + trialInfo['nct_id']);
+                if (setChosenTrial === false) {
+                    this.nctIdChosen = trialInfo['nct_id'];
+                    this.trialService.setTrialChosen(this.nctIdChosen);
+                    this.originalTrialStatus = this.trialChosen['status'];
+                    setChosenTrial = true;
+                }
+            }).catch(error => {
+                this.messages.push('Fail to save to database ' + tempTrial);
+            });
+        }, error => {
             this.messages.push(tempTrial + ' not found');
-        }
-        );
+        });
     }
     this.trialsToImport = '';
   }
@@ -235,7 +231,7 @@ export class TrialComponent implements OnInit, AfterViewInit{
         if (res.status === 200) {
             if (this.trialChosen['archived'] === 'Yes') {
                 // Remove archived trials from database
-                alert("This archived trial has been removed from database");
+                alert("This archived trial has been removed from database.");
                 return;
             }
             this.mongoMessage.content = 'Send trial ' + this.nctIdChosen + ' successfully!';
