@@ -17,6 +17,8 @@ export class TrialService {
     production = environment.production ? environment.production : false;
     oncokb = environment.oncokb ? environment.oncokb : false;
     isPermitted = environment.isPermitted ? environment.isPermitted : false;
+    showHeader = environment.showHeader ? environment.showHeader : false;
+    showFooter = environment.showFooter ? environment.showFooter : false;
     showImportTrial = environment.showImportTrial ? environment.showImportTrial : false;
     showTrialTable = environment.showTrialTable ? environment.showTrialTable : false;
 

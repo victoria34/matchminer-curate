@@ -12,8 +12,9 @@ import "../../../../../node_modules/jquery/dist/jquery.js";
 import "../../../../../node_modules/datatables.net/js/jquery.dataTables.js";
 import { Subject } from 'rxjs/Subject';
 import { DataTableDirective } from 'angular-datatables';
-import { NgModel } from "@angular/forms";
-import { ConnectionService } from "../service/connection.service";
+import { NgModel } from '@angular/forms';
+import { ConnectionService } from '../service/connection.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'jhi-trial',
@@ -46,7 +47,7 @@ export class TrialComponent implements OnInit, AfterViewInit{
   };
   @ViewChild('radioArchiveModel') private radioArchiveModel: NgModel;
 
-  constructor(public http: Http, private trialService: TrialService, public db: AngularFireDatabase, private connectionService: ConnectionService) {
+  constructor(public http: Http, private trialService: TrialService, public db: AngularFireDatabase, private connectionService: ConnectionService, private router: Router) {
     this.trialService.nctIdChosenObs.subscribe(message => this.nctIdChosen = message);
     this.trialService.trialChosenObs.subscribe(message => this.trialChosen = message);
     this.trialService.trialListObs.subscribe(message => {
@@ -69,6 +70,10 @@ export class TrialComponent implements OnInit, AfterViewInit{
         paging: false,
         scrollY: '300'
     };
+    if (this.router.url.includes("NCT")) {
+      let nctId = this.router.url.split("/").slice(-1)[0];
+      this.curateTrial(nctId);
+    }
   }
   importTrials() {
     this.messages = [];

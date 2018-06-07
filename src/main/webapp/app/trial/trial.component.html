@@ -53,7 +53,7 @@
     </div>
     <div id="trialDetail"><br/></div>
     <div *ngIf="nctIdChosen" style="margin-bottom: 100px">
-        <hr>
+        <hr [hidden]="!showTrialTable">
         <div>
             <label for="curation_status">Curation Status:</label>
             <span [hidden]="isPermitted" style="margin-left:10px">{{ trialChosen.curation_status }}</span>
@@ -84,7 +84,8 @@
             <span id="phase" style="margin-left:10px">{{ trialChosen.phase }}</span>
             <br/>
             <label for="status">Status: </label>
-            <span id="status" style="margin-left:10px">
+            <span [hidden]="isPermitted" style="margin-left:10px">{{ trialChosen.status }}</span>
+            <span  *ngIf="isPermitted" id="status" style="margin-left:10px">
                 <div style="min-width: 300px; display: inline-block">
                     <ng-select class="selectStyle" #selectModel="ngModel" [items]="statusOptions" [(ngModel)]="trialChosen.status"
                                [clearable]="false" (change)="updateTrialStatusInDB()"></ng-select>

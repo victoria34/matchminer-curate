@@ -9,6 +9,8 @@ export const environment = {
     },
     devEmail: '', // set development team email to receive error notifications
     isPermitted: true, // set to false for building read-only website
+    showHeader: true, // set to false for hiding footer.
+    showFooter: true, // set to false for hiding header.
     showImportTrial: true, // set to false for hiding "Import New Trials" button
     showTrialTable: true, // set to false for hiding trials table
     oncokb: true, // set to true to customized interface for oncokb

@@ -1,9 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { errorRoute, navbarRoute } from './layouts';
+import { TrialComponent } from './trial/trial.component';
 
 const LAYOUT_ROUTES = [
     navbarRoute,
+    { path: 'trials', component: TrialComponent },
+    { path: 'trials/:id', component: TrialComponent },
     ...errorRoute
 ];
 
