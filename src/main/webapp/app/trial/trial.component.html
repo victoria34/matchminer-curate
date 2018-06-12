@@ -1,5 +1,5 @@
 <div class="container" style="min-height:550px">
-    <div [hidden]="!showImportTrial">
+    <div *ngIf="showImportTrial">
         <div class="input-group">
             <input type="text" class="form-control" [(ngModel)]="trialsToImport" placeholder="Enter trial in the format: NCT02057133, NCT03006172"
                 size="100">
@@ -19,7 +19,7 @@
         <br/>
         <br/>
     </div>
-    <div [hidden]="!showTrialTable">
+    <div *ngIf="showTrialTable">
         <div style="float:right">
             <label for="hideArchived">Hide archived trials:</label>
             <span id="hideArchived">
@@ -53,10 +53,10 @@
     </div>
     <div id="trialDetail"><br/></div>
     <div *ngIf="nctIdChosen" style="margin-bottom: 100px">
-        <hr [hidden]="!showTrialTable">
+        <hr *ngIf="showTrialTable">
         <div>
             <label for="curation_status">Curation Status:</label>
-            <span [hidden]="isPermitted" style="margin-left:10px">{{ trialChosen.curation_status }}</span>
+            <span *ngIf="!isPermitted" style="margin-left:10px">{{ trialChosen.curation_status }}</span>
             <span *ngIf="isPermitted" id="curation_status">
                 <label for="progress" style="color:red;margin-left:10px">In progress </label>
                 <input id="progress" type="radio" value="In progress" name="curation" [(ngModel)]="trialChosen.curation_status" (change)="updateStatus('curation')">
@@ -65,7 +65,7 @@
             </span>
             <br/>
             <label for="archive_status">Archive:</label>
-            <span [hidden]="isPermitted" style="margin-left:10px">{{ trialChosen.archived }}</span>
+            <span *ngIf="!isPermitted" style="margin-left:10px">{{ trialChosen.archived }}</span>
             <span *ngIf="isPermitted" id="archive_status">
                 <label for="archive" style="color:red;margin-left:10px">Yes </label>
                 <input id="archive" type="radio" value="Yes" name="archive" [(ngModel)]="trialChosen.archived" (change)="updateStatus('archive')">
@@ -77,14 +77,14 @@
             <span id="nctId" style="margin-left:10px">
                 <a target="_blank" href="https://clinicaltrials.gov/ct2/show/{{trialChosen.nct_id}}">{{ trialChosen.nct_id }}</a>
             </span>
-            <button class="btn btn-primary" [hidden]="!isPermitted || !production || trialChosen.archived === 'Yes' || trialChosen.curation_status === 'In progress'" (click)="loadMongo()" style="margin-left: 10px;">Finish Curation</button>
-            <span style="margin-left: 20px;" [hidden]="!isPermitted || !production || trialChosen.archived === 'Yes' || trialChosen.curation_status === 'In progress'" [style.color]="mongoMessage.color"> {{mongoMessage.content}} </span>
+            <button class="btn btn-primary" *ngIf="isPermitted && production && trialChosen.archived === 'No' && trialChosen.curation_status === 'Completed'" (click)="loadMongo()" style="margin-left: 10px;">Finish Curation</button>
+            <span style="margin-left: 20px;" *ngIf="isPermitted && production && trialChosen.archived === 'No' && trialChosen.curation_status === 'Completed'" [style.color]="mongoMessage.color"> {{mongoMessage.content}} </span>
             <br/>
             <label for="phase">Phase: </label>
             <span id="phase" style="margin-left:10px">{{ trialChosen.phase }}</span>
             <br/>
             <label for="status">Status: </label>
-            <span [hidden]="isPermitted" style="margin-left:10px">{{ trialChosen.status }}</span>
+            <span *ngIf="!isPermitted" style="margin-left:10px">{{ trialChosen.status }}</span>
             <span  *ngIf="isPermitted" id="status" style="margin-left:10px">
                 <div style="min-width: 300px; display: inline-block">
                     <ng-select class="selectStyle" #selectModel="ngModel" [items]="statusOptions" [(ngModel)]="trialChosen.status"
@@ -116,7 +116,7 @@
                 <div class="indent1 levelIndicator">
                     <jhi-match [match]="trialChosen.treatment_list.step[0].match" [path]="'match'"></jhi-match>
                 </div>
-                <div [hidden]="!isPermitted" style="margin-top:150px;">
+                <div *ngIf="isPermitted" style="margin-top:150px;">
                     <p>
                         Note*
                         <i class="fa fa-plus noteAdd" aria-hidden="true"></i>: Add

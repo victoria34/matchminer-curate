@@ -8,7 +8,8 @@ import { TrialService } from '../../service/trial.service';
     templateUrl: './main.component.html'
 })
 export class JhiMainComponent implements OnInit {
-    authorized = false;
+    authorized = true;
+    // authorized = false;
     showHeader = false;
     showFooter = false;
     constructor(
@@ -16,9 +17,11 @@ export class JhiMainComponent implements OnInit {
         private router: Router,
         private trialService: TrialService
     ) {
-        this.trialService.authorizedObs.subscribe(message => this.authorized = message);
+        // this.trialService.authorizedObs.subscribe(message => this.authorized = message);
+        this.trialService.fetchTrials();
         this.showHeader = this.trialService.showHeader;
         this.showFooter = this.trialService.showFooter;
+        this.authorized = true;
     }
 
     private getPageTitle(routeSnapshot: ActivatedRouteSnapshot) {

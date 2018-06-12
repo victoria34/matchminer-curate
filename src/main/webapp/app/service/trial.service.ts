@@ -218,7 +218,7 @@ export class TrialService {
     }
     fetchTrials() {
         this.trialsRef.snapshotChanges().subscribe(action => {
-            this.authorizedSource.next(true);
+            // this.authorizedSource.next(true);
             this.trialList = [];
             for (const nctId of _.keys(action.payload.val())) {
                 this.trialList.push(action.payload.val()[nctId]);
@@ -226,7 +226,7 @@ export class TrialService {
             this.trialListSource.next(this.trialList);
             this.setTrialChosen(this.nctIdChosen);
         }, error => {
-            this.authorizedSource.next(false);
+            // this.authorizedSource.next(false);
         });
     }
     setTrialChosen(nctId: string) {
