@@ -31,7 +31,7 @@
           <tr>
             <th>NCT ID</th>
             <th>Status</th>
-            <th>Title</th>
+            <th style="min-width: 400px;">Title</th>
             <th>Curation Status</th>
             <th [hidden]="true">Archived</th>
           </tr>
@@ -40,7 +40,7 @@
           <tr *ngFor="let trial of trialList">
             <td><a (click)="curateTrial(trial.nct_id)">{{ trial.nct_id }}</a></td>
             <td>{{ trial.status }}</td>
-            <td>{{ trial.short_title }}</td>
+            <td style="min-width: 400px;">{{ trial.short_title }}</td>
             <td><span [ngStyle]="getStatus(trial.curation_status)">{{ trial.curation_status }}</span></td>
             <td [hidden]="true">{{ trial.archived }}</td>
           </tr>

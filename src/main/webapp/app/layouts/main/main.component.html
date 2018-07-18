@@ -4,16 +4,11 @@
 </div>
 <div class="container-fluid">
     <div class="card jh-card">
-        <div *ngIf="authorized; else permission">
+        <div>
             <router-outlet></router-outlet>
         </div>
-        <ng-template #permission>
-            <div class="container" style="min-height:550px">
-                Matchminer Curation Platform is proprietary resource. If you are not authorized to access this system, please exit immediately.
-            </div>
-        </ng-template>
     </div>
 </div>
 <div style="margin-top: 20px;">
-    <jhi-footer *ngIf="authorized"></jhi-footer>
+    <jhi-footer></jhi-footer>
 </div>
